@@ -1,0 +1,30 @@
+name: Review Supabase migration changes
+description: Compare a pull request's SQL with its base using the latest stable RattleCheck from npm.
+inputs:
+  migrations-directory:
+    description: Repository-relative directory containing the ordered SQL migrations.
+    default: supabase/migrations
+  additional-migrations-directory:
+    description: Optional migrations copied on top of the main history at install time.
+    default: ''
+  supabase-config:
+    description: Repository-relative Supabase configuration used by this installation.
+    default: supabase/config.toml
+runs:
+  using: composite
+  steps:
+    - name: Check out the proposed merge and its parents
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      with:
+        fetch-depth: 2
+        persist-credentials: false
+    - name: Compare migration permissions
+      shell: bash
+      working-directory: ${{ runner.temp }}
+      env:
+        PR_BASE: ${{ github.event.pull_request.base.sha }}
+        PR_EVENT: ${{ github.event_name }}
+        MIGRATIONS: ${{ inputs.migrations-directory }}
+        OVERLAY: ${{ inputs.additional-migrations-directory }}
+        SUPABASE_CONFIG: ${{ inputs.supabase-config }}
+      run: node "$GITHUB_ACTION_PATH/review.mjs"
