@@ -1,0 +1,52 @@
+name: Verify the Action
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Verify annotation paths and formatting
+        run: node --test --test-concurrency=1 test/annotations.test.mjs
+      - name: Get the published migration example
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: chaseakub/rattlecheck
+          ref: 649ad8401a538feb51320a4b8cdb5dd082a0ffdb
+          path: upstream
+          sparse-checkout: examples/public-directory
+          persist-credentials: false
+      - name: Start with the table-wide read grant
+        run: |
+          mkdir -p project/supabase/migrations
+          cp upstream/examples/public-directory/001_directory.sql project/supabase/migrations/
+      - name: Check the broad grant
+        id: broad
+        uses: ./
+        continue-on-error: true
+        with:
+          working-directory: project
+      - name: Confirm the check failed and add the narrower grant
+        if: steps.broad.outcome == 'failure'
+        run: cp upstream/examples/public-directory/002_narrow_reads.sql project/supabase/migrations/
+      - name: Check the narrower grant
+        uses: ./
+        with:
+          working-directory: project
+      - name: Check an empty migration
+        run: |
+          mkdir -p empty/supabase/migrations
+          touch empty/supabase/migrations/001_empty.sql
+      - name: Run the coverage check
+        id: empty
+        uses: ./
+        continue-on-error: true
+        with:
+          working-directory: empty
+      - name: Confirm both failed checks were reported
+        if: steps.broad.outcome != 'failure' || steps.empty.outcome != 'failure'
+        run: exit 1

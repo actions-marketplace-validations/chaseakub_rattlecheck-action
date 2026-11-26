@@ -1,0 +1,14 @@
+name: RattleCheck for Supabase Migrations
+description: Check local Supabase migrations for row-level security and column permission mistakes before merge.
+author: Chase Kubala
+branding:
+  icon: shield
+  color: red
+inputs:
+  working-directory:
+    description: Project folder relative to the checkout containing the Supabase migrations.
+    required: false
+    default: '.'
+runs:
+  using: node24
+  main: run.mjs
