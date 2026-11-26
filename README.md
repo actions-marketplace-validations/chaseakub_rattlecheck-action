@@ -28,6 +28,10 @@ For a monorepo, set `working-directory` on the RattleCheck step to the project f
 
 ## Read the check
 
+See the [failed run with the table-wide grant](https://github.com/chaseakub/rattlecheck/actions/runs/45845966343) and the [passing run after narrowing it](https://github.com/chaseakub/rattlecheck/actions/runs/45846092556) on the same pull request.
+
 High and critical findings with a source location get a file-and-line annotation. Open the workflow run summary to see the checked objects, scanner version and findings. The Action reads the migration history on the PR branch locally on the runner. A finding can come from an earlier migration. A high or critical finding fails the check. Warnings alone pass. Missing or uncheckable input fails so an empty scan cannot pass as a clean review.
 
 The Action runs on GitHub-hosted Ubuntu with read access to the checkout. It fetches the current stable scanner from npm (`rattlecheck@latest`) on each run. The `v1` tag versions the Action wrapper. No Supabase credentials, GitHub write permissions or external report service are needed.
+
+If you used this on an open migration PR, [tell us whether it changed what you shipped](https://github.com/chaseakub/rattlecheck/issues/new?template=migration-review.yml).
