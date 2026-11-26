@@ -10,8 +10,8 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - name: Verify annotation paths and formatting
-        run: node --test --test-concurrency=1 test/annotations.test.mjs
+      - name: Verify annotation paths and migration comparisons
+        run: node --test --test-concurrency=1 test/*.test.mjs
       - name: Get the published migration example
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
